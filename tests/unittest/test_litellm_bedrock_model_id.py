@@ -144,8 +144,8 @@ async def test_chat_completion_sends_each_model_its_own_model_ids_entry(
 async def test_model_ids_entry_does_not_change_single_model_id_for_config_model(
     monkeypatch, model, expected_model_id
 ):
-    # model_ids only lists the fallback: config.model keeps litellm.model_id,
-    # and a model that is in neither place gets no model_id.
+    # List only the fallback in model_ids. config.model keeps litellm.model_id,
+    # and a model in neither place gets no model_id.
     handler = _handler_with_model_ids(monkeypatch, {FALLBACK: FALLBACK_ARN})
     with patch("pr_agent.algo.ai_handlers.litellm_ai_handler.acompletion", new_callable=AsyncMock) as mock_call:
         mock_call.return_value = _mock_response()
@@ -170,8 +170,8 @@ async def test_health_probe_sends_fallback_its_model_ids_entry(monkeypatch):
 
 @pytest.mark.asyncio
 async def test_fallback_region_is_not_taken_from_primary_model_id(monkeypatch):
-    # The AWS region of a request is read from the model_id ARN, so a fallback
-    # must not pick up the region of the primary's inference profile.
+    # Resolve the AWS region per model: a fallback must not pick up the region
+    # of the primary's inference profile ARN.
     eu_arn = "arn:aws:bedrock:eu-west-1:123456789012:application-inference-profile/eu1"
     fallback = "bedrock/anthropic.claude-3-haiku-20240307-v1:0"
     settings = _Settings(model=PRIMARY)
